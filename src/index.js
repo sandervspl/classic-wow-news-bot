@@ -22,12 +22,12 @@ async function getFeed() {
 
         // Get website URL
         const url = item.content.match(
-          /https:\/\/us.forums.blizzard.com\/en\/wow\/[t/a-z-]+\d+/
+          /https:\/\/us.forums.blizzard.com\/en\/wow\/[a-zA-Z-/]+\d+/
         );
 
         // Get website image URL
         const imgUrl = item.content.match(
-          /<img src="(http[s]*:\/\/[a-z]*.*.(?:jpe?g|png|gif))/
+          /<img src="(http[s]*:\/\/[a-zA-Z]*.*.(?:jpe?g|png|gif))/
         );
 
         if (!url) return;
