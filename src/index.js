@@ -25,31 +25,18 @@ async function getFeed() {
           /https:\/\/us.forums.blizzard.com\/en\/wow\/[a-zA-Z-/]+\d+/
         );
 
-        // Get website image URL
-        const imgUrl = item.content.match(
-          /<img src="(http[s]*:\/\/[a-zA-Z]*.*.(?:jpe?g|png|gif))/
-        );
-
         if (!url) return;
 
         // Set this news as latest news
         lastNewsId = item.id;
 
         const body = {
-          content: ':warning: @here Classic news from Blizzard!',
+          content: `:warning: @here Classic news from Blizzard! "${item.title}"`,
           embeds: [{
-            title: item.title,
+            title: 'Read full post',
             url: url[0],
           }],
         };
-
-        if (imgUrl && imgUrl[1] && imgUrl[1].match(/(jpe?g|png|gif)/)) {
-          body.embeds.push({
-            image: {
-              url: imgUrl[1],
-            },
-          });
-        }
 
         console.info(
           `[${now.toDateString()} ${now.getHours()}:${now.getMinutes()}]`,
