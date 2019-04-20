@@ -31,7 +31,7 @@ async function getFeed() {
         lastNewsId = item.id;
 
         const body = {
-          content: `:warning: @here Classic news from Blizzard! "${item.title}"`,
+          content: `️⚠️ @here Classic news from Blizzard! "${item.title}"`,
           embeds: [{
             title: 'Read full post',
             url: url[0],
