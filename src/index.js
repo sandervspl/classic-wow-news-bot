@@ -9,7 +9,7 @@ async function getFeed() {
     const now = new Date();
     const feed = await parser.parseURL('https://www.reddit.com/r/classicwow/.rss');
 
-    feed.items.forEach(item => {
+    feed.items.forEach(async (item) => {
       if (item.content.includes('us.forums.blizzard.com')) {
         // Check if we have already posted this news
         if (item.id === lastNewsId) return;
@@ -20,12 +20,43 @@ async function getFeed() {
 
         if (timeDiff >= 60) return;
 
+
         // Get website URL
         const url = item.content.match(
           /https:\/\/us.forums.blizzard.com\/en\/wow\/[a-zA-Z-/]+\d+/
         );
 
         if (!url) return;
+
+
+        // Use old Reddit to easily find current upvotes
+        const oldRedditLink = item.link.replace('www', 'old');
+
+        // Search for amount of upvotes
+        let upvotes = await fetch(oldRedditLink)
+          .then((response) => response.text())
+          .then((html) => {
+            // Look for element with class "score unvoted" and a title that includes the number
+            // of upvotes
+            const upvoteElement = /class="score unvoted" title="(?:\d+)/.exec(html);
+            
+            if (upvoteElement) {
+              // Get the number of upvotes
+              const postUpvotes = upvoteElement[0].split('title="')[1];
+
+              // Return the amount of upvotes
+              if (postUpvotes && Number(postUpvotes)) {
+                return Number(postUpvotes);
+              }
+            }
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+
+        // Check for minimum upvote amount
+        if (upvotes && upvotes < 20) return;
+
 
         // Set this news as latest news
         lastNewsId = item.id;
