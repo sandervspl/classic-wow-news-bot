@@ -40,13 +40,18 @@ async function getFeed() {
             // of upvotes
             const upvoteElement = /class="score unvoted" title="(?:\d+)/.exec(html);
             
-            if (upvoteElement) {
+            if (upvoteElement != null && upvoteElement.length > 0) {
               // Get the number of upvotes
-              const postUpvotes = upvoteElement[0].split('title="')[1];
+              const str = upvoteElement[0].split('title="');
+              
+              if (str && str.length > 0) {
+                // Get upvotes amount
+                const postUpvotes = str[1];
 
-              // Return the amount of upvotes
-              if (postUpvotes && Number(postUpvotes)) {
-                return Number(postUpvotes);
+                // Return the amount of upvotes
+                if (postUpvotes) {
+                  return Number(postUpvotes);
+                }
               }
             }
           })
@@ -55,7 +60,7 @@ async function getFeed() {
           });
 
         // Check for minimum upvote amount
-        if (upvotes && upvotes < 20) return;
+        if (typeof upvotes === 'number' && upvotes < 20) return;
 
 
         // Set this news as latest news
@@ -73,6 +78,7 @@ async function getFeed() {
           `[${now.toDateString()} ${now.getHours()}:${now.getMinutes()}]`,
           'NEW POST!',
           `"${item.title}"`,
+          `[⬆️ ${upvotes}]`,
         );
         console.info(JSON.stringify(body, null, 2));
 
