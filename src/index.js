@@ -4,6 +4,13 @@ const parser = new Parser();
 
 let lastNewsId = '';
 
+function isOldNews(dateStr) {
+  const now = new Date();
+  const date = new Date(dateStr);
+  
+  return ((now - date) / 60e3) >= 60;
+}
+
 async function getFeed() {
   try {
     const now = new Date();
@@ -15,10 +22,7 @@ async function getFeed() {
         if (item.id === lastNewsId) return;
         
         // Check if is old news
-        let timeDiff = now - new Date(item.isoDate);
-        timeDiff /= 60e3; // Convert to minutes
-
-        if (timeDiff >= 60) return;
+        if (isOldNews(item.isoDate)) return;
 
 
         // Get website URL
@@ -29,38 +33,25 @@ async function getFeed() {
         if (!url) return;
 
 
-        // Use old Reddit to easily find current upvotes
-        const oldRedditLink = item.link.replace('www', 'old');
-
-        // Search for amount of upvotes
-        let upvotes = await fetch(oldRedditLink)
+        // Search for publish date of Blizzard's article
+        const isOldArticle = await fetch(url)
           .then((response) => response.text())
           .then((html) => {
-            // Look for element with class "score unvoted" and a title that includes the number
-            // of upvotes
-            const upvoteElement = /class="score unvoted" title="(?:\d+)/.exec(html);
-            
-            if (upvoteElement != null && upvoteElement.length > 0) {
-              // Get the number of upvotes
-              const str = upvoteElement[0].split('title="');
-              
-              if (str && str.length > 0) {
-                // Get upvotes amount
-                const postUpvotes = str[1];
+            // Look for the article published date
+            const publishDateRgx = /2019-[\d-]+T[\d:+]+/.exec(html);
 
-                // Return the amount of upvotes
-                if (postUpvotes) {
-                  return Number(postUpvotes);
-                }
-              }
+            if (publishDateRgx && publishDateRgx[0]) {
+              // Check if is old news
+              if (isOldNews(publishDateRgx[0])) return true;
             }
+
+            return false;
           })
           .catch((err) => {
             console.error(err);
           });
 
-        // Check for minimum upvote amount
-        if (typeof upvotes === 'number' && upvotes < 20) return;
+        if (isOldArticle) return;
 
 
         // Set this news as latest news
@@ -78,7 +69,6 @@ async function getFeed() {
           `[${now.toDateString()} ${now.getHours()}:${now.getMinutes()}]`,
           'NEW POST!',
           `"${item.title}"`,
-          `[⬆️ ${upvotes}]`,
         );
         console.info(JSON.stringify(body, null, 2));
 
