@@ -2,6 +2,8 @@ const fetch = require('node-fetch');
 const Parser = require('rss-parser');
 const parser = new Parser();
 
+require('dotenv').config();
+
 let lastNewsId = '';
 
 function isOldNews(dateStr) {
@@ -73,7 +75,7 @@ async function getFeed() {
         console.info(JSON.stringify(body, null, 2));
 
         fetch(
-          'https://discordapp.com/api/webhooks/561859993587154954/to8nVsewGm94K431aKCw-bI-dtfxAorby8M5xAyaBfu3p5st0inY6OxGgQXKu7KBg9lH',
+          process.env.WEBHOOK_URI,
           {
             method: 'POST',
             headers: {
