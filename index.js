@@ -29,7 +29,7 @@ async function getFeed() {
 
         // Get website URL
         const url = item.content.match(
-          /https:\/\/us.forums.blizzard.com\/en\/wow\/[a-zA-Z-/]+\d+/
+          /https:\/\/us.forums.blizzard.com\/en\/wow\/.+\/\d+/
         );
 
         if (!url) return;
