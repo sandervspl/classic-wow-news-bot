@@ -94,3 +94,5 @@ async function getFeed() {
 setInterval(getFeed, 30000);
 
 getFeed();
+
+console.log('[BOT] Classic news bot started.');
