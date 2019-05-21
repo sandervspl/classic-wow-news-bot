@@ -1,0 +1,12 @@
+{
+  "apps": [{
+    "name": "BOT_classic-news",
+    "script": "/var/api/PROJECT/index.js",
+    "cwd": "/var/api/PROJECT",
+    "instances": INSTANCES,
+    "env_production": {
+      "NODE_ENV": "production",
+      "APP_ENV": "production"
+    }
+  }]
+}
