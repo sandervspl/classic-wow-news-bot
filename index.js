@@ -4,7 +4,7 @@ const parser = new Parser();
 
 require('dotenv').config();
 
-let lastNewsId = '';
+let reportedNewsIds = [];
 
 function isOldNews(dateStr) {
   const now = new Date();
@@ -21,7 +21,7 @@ async function getFeed() {
     feed.items.forEach(async (item) => {
       if (item.content.includes('us.forums.blizzard.com')) {
         // Check if we have already posted this news
-        if (item.id === lastNewsId) return;
+        if (reportedNewsIds.includes(item.id)) return;
         
         // Check if is old news
         if (isOldNews(item.isoDate)) return;
@@ -56,8 +56,8 @@ async function getFeed() {
         if (isOldArticle) return;
 
 
-        // Set this news as latest news
-        lastNewsId = item.id;
+        // Add this news to reported news IDs
+        reportedNewsIds.push(item.id);
 
         const body = {
           content: `️⚠️ @here Classic news from Blizzard! "${item.title}"`,
