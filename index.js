@@ -32,7 +32,7 @@ async function getFeed() {
 
         // Check if we have already posted this news
         if (reportedNewsIds.includes(item.id)) {
-          logger.error('Item already reported');
+          logger.error('Item already reported', reportedNewsIds);
           return;
         }
 
@@ -74,7 +74,7 @@ async function getFeed() {
               if (isOldNews(publishDateRgx[0])) return true;
             } else {
               logger.error('No publish date found on forum post');
-              return true; // @todo: @todo is this fine?
+              // return true;
             }
 
             return false;
