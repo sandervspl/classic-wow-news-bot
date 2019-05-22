@@ -15,7 +15,7 @@ function isOldNews(dateStr) {
   const now = new Date();
   const date = new Date(dateStr);
   
-  return ((now - date) / 60e3) >= 60;
+  return ((now - date) / 60e3) >= 120;
 }
 
 async function getFeed() {
@@ -62,6 +62,9 @@ async function getFeed() {
           .then((html) => {
             // Look for the article published date
             const publishDateRgx = /2019-[\d-]+T[\d:+]+/.exec(html);
+            
+            logChild = logger.child({ label: 'forum post date regex result' });
+            logChild.info(publishDateRgx);
 
             if (publishDateRgx && publishDateRgx[0]) {
               // Check if is old news
@@ -71,6 +74,7 @@ async function getFeed() {
               if (isOldNews(publishDateRgx[0])) return true;
             } else {
               logger.error('No publish date found on forum post');
+              return true; // @todo: @todo is this fine?
             }
 
             return false;
@@ -96,7 +100,7 @@ async function getFeed() {
           }],
         };
 
-        logger.error(
+        logger.info(
           `[${now.toDateString()} ${now.getHours()}:${now.getMinutes()}]`,
           'NEW POST!',
           `"${item.title}"`,
