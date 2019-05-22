@@ -45,7 +45,7 @@ async function getFeed() {
 
         // Get website URL
         const url = item.content.match(
-          /https:\/\/us.forums.blizzard.com\/en\/wow\/.+\/\d+/
+          /https:\/\/us.forums.blizzard.com\/en\/wow\/.+\/\d+(?=[\\"])/
         );
 
         logChild = logger.child({ label: 'forums url' });
