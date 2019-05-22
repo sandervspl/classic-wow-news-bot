@@ -18,11 +18,13 @@ async function getFeed() {
     const now = new Date();
     const feed = await parser.parseURL('https://www.reddit.com/r/classicwow/.rss');
 
+    if (!feed || !feed.items || feed.items.length === 0) return;
+
     feed.items.forEach(async (item) => {
-      if (item.content.includes('us.forums.blizzard.com')) {
+      if (item.content && item.content.includes('us.forums.blizzard.com')) {
         // Check if we have already posted this news
         if (reportedNewsIds.includes(item.id)) return;
-        
+
         // Check if is old news
         if (isOldNews(item.isoDate)) return;
 
