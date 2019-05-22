@@ -1,8 +1,13 @@
 const fetch = require('node-fetch');
 const Parser = require('rss-parser');
+const pino = require('pino');
 const parser = new Parser();
 
 require('dotenv').config();
+
+const logger = pino({
+  prettyPrint: true,
+});
 
 let reportedNewsIds = [];
 
@@ -22,11 +27,20 @@ async function getFeed() {
 
     feed.items.forEach(async (item) => {
       if (item.content && item.content.includes('us.forums.blizzard.com')) {
+        let logChild = logger.child({ label: 'item' });
+        logChild.info(item.title);
+
         // Check if we have already posted this news
-        if (reportedNewsIds.includes(item.id)) return;
+        if (reportedNewsIds.includes(item.id)) {
+          logger.error('Item already reported');
+          return;
+        }
 
         // Check if is old news
-        if (isOldNews(item.isoDate)) return;
+        if (isOldNews(item.isoDate)) {
+          logger.error('Item is too old');
+          return;
+        }
 
 
         // Get website URL
@@ -34,8 +48,13 @@ async function getFeed() {
           /https:\/\/us.forums.blizzard.com\/en\/wow\/.+\/\d+/
         );
 
-        if (!url) return;
+        logChild = logger.child({ label: 'forums url' });
+        logChild.info(url);
 
+        if (!url) {
+          logger.error('No valid URL found', url);
+          return;
+        }
 
         // Search for publish date of Blizzard's article
         const isOldArticle = await fetch(url)
@@ -46,7 +65,12 @@ async function getFeed() {
 
             if (publishDateRgx && publishDateRgx[0]) {
               // Check if is old news
+              logChild = logger.child({ label: 'forum post date' });
+              logChild.info(publishDateRgx[0]);
+
               if (isOldNews(publishDateRgx[0])) return true;
+            } else {
+              logger.error('No publish date found on forum post');
             }
 
             return false;
@@ -55,7 +79,10 @@ async function getFeed() {
             console.error(err);
           });
 
-        if (isOldArticle) return;
+        if (isOldArticle) {
+          logger.error('Forum post is too old');
+          return;
+        }
 
 
         // Add this news to reported news IDs
@@ -69,12 +96,12 @@ async function getFeed() {
           }],
         };
 
-        console.info(
+        logger.error(
           `[${now.toDateString()} ${now.getHours()}:${now.getMinutes()}]`,
           'NEW POST!',
           `"${item.title}"`,
         );
-        console.info(JSON.stringify(body, null, 2));
+        logger.error(JSON.stringify(body, null, 2));
 
         fetch(
           process.env.WEBHOOK_URI,

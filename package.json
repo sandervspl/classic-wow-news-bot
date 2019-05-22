@@ -10,6 +10,8 @@
   "dependencies": {
     "dotenv": "8.0.0",
     "node-fetch": "2.3.0",
+    "pino": "5.12.5",
+    "pino-pretty": "3.0.0",
     "rss-parser": "3.7.0"
   },
   "devDependencies": {
